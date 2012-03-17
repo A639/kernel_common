@@ -600,6 +600,13 @@ config MACH_ZIPIT2
 	select PXA27x
 	select HAVE_PWM
 
+config MACH_ASUSA639
+	bool "Asus A639"
+	depends on ARCH_PXA
+	select PXA27x
+	select IWMMXT
+	select HAVE_PWM
+
 endmenu
 
 config PXA25x

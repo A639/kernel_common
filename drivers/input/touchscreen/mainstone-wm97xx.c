@@ -165,7 +165,10 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
 		/* coordinate is good */
 		tries = 0;
 		input_report_abs(wm->input_dev, ABS_X, x & 0xfff);
-		input_report_abs(wm->input_dev, ABS_Y, y & 0xfff);
+		if (machine_is_asusa639())
+			input_report_abs(wm->input_dev, ABS_Y, (512 - y) & 0xfff);
+		else
+			input_report_abs(wm->input_dev, ABS_Y, y & 0xfff);
 		input_report_abs(wm->input_dev, ABS_PRESSURE, p & 0xfff);
 		input_report_key(wm->input_dev, BTN_TOUCH, (p != 0));
 		input_sync(wm->input_dev);

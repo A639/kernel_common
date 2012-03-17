@@ -94,6 +94,7 @@ obj-$(CONFIG_MACH_RAUMFELD_RC)		+= raumfeld.o
 obj-$(CONFIG_MACH_RAUMFELD_CONNECTOR)	+= raumfeld.o
 obj-$(CONFIG_MACH_RAUMFELD_SPEAKER)	+= raumfeld.o
 obj-$(CONFIG_MACH_ZIPIT2)	+= z2.o
+obj-$(CONFIG_MACH_ASUSA639)	+= a639.o
 
 # Support for blinky lights
 led-y := leds.o
