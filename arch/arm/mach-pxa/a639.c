@@ -6,7 +6,7 @@
  * preserved in its entirety in all copies and derived works.
  *
  * 2008-11-09   Initial Version by Xiao Huang
- * 2011-11-25	Modified to match A639 by Oran Avraham
+ * 2011-11-25	Modified to match A639
  */
 
 #include <linux/init.h>
@@ -197,49 +197,25 @@ static void __init a639_button_init(void)
  * USB
  */
 
-// FIXME
-#if 0
-static struct gpio_vbus_mach_info a639_gpio_vbus_info = {
-	.gpio_vbus		= 13,
+static struct gpio_vbus_mach_info a639_udc_info = {
 	.gpio_pullup		= 88,
+	.gpio_vbus			= 13,
+	.gpio_vbus_inverted	= 1,
 };
 
 static struct platform_device a639_gpio_vbus = {
 	.name	= "gpio-vbus",
-	.id	= -1,
+	.id		= -1,
 	.dev	= {
-		.platform_data	= &a639_gpio_vbus_info,
+			.platform_data	= &a639_udc_info,
 	},
 };
 
-static int a639_udc_is_connected(void)
+static void a639_udc_init(void)
 {
-	printk(KERN_ERR "a639_udc_is_connected = %d\n", gpio_get_value(11));
-	return (gpio_get_value(13) == 0);
-}
-
-static void a639_udc_command(int cmd)
-{
-	printk(KERN_ERR "a639_udc_command(%d)\n", cmd);
-	if (cmd == PXA2XX_UDC_CMD_CONNECT)
-		gpio_set_value(88, 1);
-	else if (cmd == PXA2XX_UDC_CMD_DISCONNECT)
-		gpio_set_value(88, 0);
-}
-
-static struct pxa2xx_udc_mach_info a639_udc_info __initdata = {
-	.udc_is_connected	= a639_udc_is_connected,
-	.udc_command		= a639_udc_command,
-	.gpio_pullup		= 88,
-};
-
-static void __init a639_udc_init(void)
-{
-	pxa_set_udc_info(&a639_udc_info);
 	platform_device_register(&a639_gpio_vbus);
-	printk(KERN_ERR "UDC initialized\n");
+	printk(KERN_ERR "A639 UDC initialized\n");
 }
-#endif
 
 /*
  * Init
@@ -267,7 +243,7 @@ static void __init a639_init(void)
 	a639_mmc_init();
 	a639_button_init();
 	pxa_set_ac97_info(NULL);
-	//a639_udc_init();
+	a639_udc_init();
 }
 
 MACHINE_START(ASUSA639, "Asus A639")
