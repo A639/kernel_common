@@ -194,26 +194,46 @@ static void __init a639_button_init(void)
 }
 
 /**
- * USB
+ * USB Device Controller
  */
 
-static struct gpio_vbus_mach_info a639_udc_info = {
-	.gpio_pullup		= 88,
-	.gpio_vbus			= 13,
-	.gpio_vbus_inverted	= 1,
-};
+static void a639_udc_command(int cmd)
+{
+	switch (cmd) {
+	case PXA2XX_UDC_CMD_DISCONNECT:
+		printk(KERN_ERR "A639 UDC disconnect\n");
+		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUBE;
+		gpio_set_value(88, 0);
+		break;
 
-static struct platform_device a639_gpio_vbus = {
-	.name	= "gpio-vbus",
-	.id		= -1,
-	.dev	= {
-			.platform_data	= &a639_udc_info,
-	},
+	case PXA2XX_UDC_CMD_CONNECT:
+		printk(KERN_ERR "A639 UDC connect\n");
+		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUE;
+		gpio_set_value(88, 1);
+		break;
+	}
+}
+
+static int a639_udc_is_connected(void)
+{
+	return 1;
+}
+
+static struct pxa2xx_udc_mach_info a639_udc_info = {
+	.udc_command = a639_udc_command,
+	.udc_is_connected = a639_udc_is_connected,
 };
 
 static void a639_udc_init(void)
 {
-	platform_device_register(&a639_gpio_vbus);
+	if (gpio_request(88, "VBUS_EN"))
+		return;
+
+	if (gpio_direction_output(88, 0))
+		return;
+
+	//platform_device_register(&a639_gpio_vbus);
+	pxa_set_udc_info(&a639_udc_info);
 	printk(KERN_ERR "A639 UDC initialized\n");
 }
 
