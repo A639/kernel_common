@@ -202,13 +202,13 @@ static void a639_udc_command(int cmd)
 	switch (cmd) {
 	case PXA2XX_UDC_CMD_DISCONNECT:
 		printk(KERN_ERR "A639 UDC disconnect\n");
-		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUBE;
+//		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUBE;
 		gpio_set_value(88, 0);
 		break;
 
 	case PXA2XX_UDC_CMD_CONNECT:
 		printk(KERN_ERR "A639 UDC connect\n");
-		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUE;
+//		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUE;
 		gpio_set_value(88, 1);
 		break;
 	}
@@ -216,7 +216,7 @@ static void a639_udc_command(int cmd)
 
 static int a639_udc_is_connected(void)
 {
-	return 1;
+	return (gpio_get_value(13) == 0);
 }
 
 static struct pxa2xx_udc_mach_info a639_udc_info = {
@@ -230,6 +230,9 @@ static void a639_udc_init(void)
 		return;
 
 	if (gpio_direction_output(88, 0))
+		return;
+
+	if (gpio_direction_input(13))
 		return;
 
 	//platform_device_register(&a639_gpio_vbus);
