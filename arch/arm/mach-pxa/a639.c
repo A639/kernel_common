@@ -45,8 +45,7 @@
 #include <mach/pxa27x.h>
 #include <mach/pxa27x-udc.h>
 
-#include <mach/asus639-init.h>
-#include <mach/asus639-gpio.h>
+#include <mach/a639.h>
 
 #include "generic.h"
 
@@ -123,7 +122,6 @@ static void __init a639_lcd_init(void)
 		pxa_set_fb_info(NULL, &a639_pxafb_mach_info);
 
 	a639_lcd_power(0, NULL);
-	printk(KERN_ERR "LCD initialized\n");
 }
 
 /**
@@ -141,7 +139,6 @@ static struct pxamci_platform_data a639_mci_platform_data = {
 static void __init a639_mmc_init(void)
 {
 	pxa_set_mci_info(&a639_mci_platform_data);
-	printk(KERN_ERR "MMC initialized\n");
 }
 
 /**
@@ -161,17 +158,15 @@ static void __init a639_mmc_init(void)
 
 static struct gpio_keys_button gpio_keys[] = {
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_POWER, KEY_POWER, "Power button"),
-
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_UP, KEY_UP, "Up button"),
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_DOWN, KEY_DOWN, "Down button"),
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_LEFT, KEY_LEFT, "Left button"),
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_RIGHT, KEY_RIGHT, "Right button"),
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_ENTER, KEY_KPENTER, "Action button"),
-
-	GPIO_BUTTON(GPIO_NR_A639_BUTTON_NOTES, 1, "Notes button"),
-	GPIO_BUTTON(GPIO_NR_A639_BUTTON_CONTACTS, 2, "Contacts button"),
-	GPIO_BUTTON(GPIO_NR_A639_BUTTON_CALENDAR, 3, "Calendar button"),
-	GPIO_BUTTON(GPIO_NR_A639_BUTTON_ROTATE, 4, "Rotate button"),
+	GPIO_BUTTON(GPIO_NR_A639_BUTTON_NOTES, KEY_RECORD, "Notes button"),
+	GPIO_BUTTON(GPIO_NR_A639_BUTTON_CONTACTS, KEY_ADDRESSBOOK, "Contacts button"),
+	GPIO_BUTTON(GPIO_NR_A639_BUTTON_CALENDAR, KEY_CALENDAR, "Calendar button"),
+	GPIO_BUTTON(GPIO_NR_A639_BUTTON_ROTATE, KEY_SEARCH, "Rotate button"),
 };
 
 struct gpio_keys_platform_data gpio_key_info = {
@@ -190,54 +185,29 @@ struct platform_device keys_gpio = {
 static void __init a639_button_init(void)
 {
 	platform_device_register(&keys_gpio);
-	printk(KERN_ERR "A639 buttons registered\n");
 }
 
 /**
  * USB Device Controller
  */
 
-static void a639_udc_command(int cmd)
-{
-	switch (cmd) {
-	case PXA2XX_UDC_CMD_DISCONNECT:
-		printk(KERN_ERR "A639 UDC disconnect\n");
-//		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUBE;
-		gpio_set_value(88, 0);
-		break;
-
-	case PXA2XX_UDC_CMD_CONNECT:
-		printk(KERN_ERR "A639 UDC connect\n");
-//		UP2OCR = UP2OCR_HXOE | UP2OCR_DMPUE;
-		gpio_set_value(88, 1);
-		break;
-	}
-}
-
 static int a639_udc_is_connected(void)
 {
-	return (gpio_get_value(13) == 0);
+	return (gpio_get_value(GPIO_NR_A639_USB_DETECT) == 0);
 }
 
 static struct pxa2xx_udc_mach_info a639_udc_info = {
-	.udc_command = a639_udc_command,
 	.udc_is_connected = a639_udc_is_connected,
+	.gpio_pullup_inverted = 0,
+	.gpio_pullup = GPIO_NR_A639_USB_PULLUP,
 };
 
 static void a639_udc_init(void)
 {
-	if (gpio_request(88, "VBUS_EN"))
+	if (gpio_direction_input(GPIO_NR_A639_USB_DETECT))
 		return;
 
-	if (gpio_direction_output(88, 0))
-		return;
-
-	if (gpio_direction_input(13))
-		return;
-
-	//platform_device_register(&a639_gpio_vbus);
 	pxa_set_udc_info(&a639_udc_info);
-	printk(KERN_ERR "A639 UDC initialized\n");
 }
 
 /*
@@ -256,8 +226,6 @@ static void __init a639_init_irq(void)
 
 static void __init a639_init(void)
 {
-	printk(KERN_ERR "a639_init entered\n");
-
 	pxa_set_ffuart_info(NULL);
 	pxa_set_btuart_info(NULL);
 	pxa_set_stuart_info(NULL);
@@ -267,9 +235,11 @@ static void __init a639_init(void)
 	a639_button_init();
 	pxa_set_ac97_info(NULL);
 	a639_udc_init();
+
+	printk(KERN_INFO "A639 is up\n");
 }
 
-MACHINE_START(ASUSA639, "Asus A639")
+MACHINE_START(A639, "Asus A639")
 	/* Maintainer: Oran Avraham (oranav@gmail.com) */
 	.boot_params	= 0xa0000100,
 	.map_io		= a639_map_io,

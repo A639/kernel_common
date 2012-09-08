@@ -600,7 +600,7 @@ config MACH_ZIPIT2
 	select PXA27x
 	select HAVE_PWM
 
-config MACH_ASUSA639
+config MACH_A639
 	bool "Asus A639"
 	depends on ARCH_PXA
 	select PXA27x
