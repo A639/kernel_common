@@ -157,7 +157,8 @@ static void __init a639_mmc_init(void)
 	}
 
 static struct gpio_keys_button gpio_keys[] = {
-	GPIO_BUTTON(GPIO_NR_A639_BUTTON_POWER, KEY_POWER, "Power button"),
+    /* FIXME: Enabling KEY_POWER causes gpio-keys to fail */
+	/* GPIO_BUTTON(GPIO_NR_A639_BUTTON_POWER, KEY_POWER, "Power button"), */
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_UP, KEY_UP, "Up button"),
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_DOWN, KEY_DOWN, "Down button"),
 	GPIO_BUTTON(GPIO_NR_A639_BUTTON_LEFT, KEY_LEFT, "Left button"),
@@ -175,9 +176,9 @@ struct gpio_keys_platform_data gpio_key_info = {
 };
 
 struct platform_device keys_gpio = {
-	.name	= "gpio-keys",
-	.id	= -1,
-	.dev	= {
+	.name   = "gpio-keys",
+	.id     = -1,
+	.dev    = {
 		.platform_data	= &gpio_key_info,
 	},
 };
