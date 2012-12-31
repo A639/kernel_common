@@ -267,6 +267,16 @@ config MACH_VPAC270
 
 comment "End-user Products (sorted by vendor name)"
 
+config MACH_A639
+	bool "ASUS MyPal A639"
+	select PXA27x
+	select IWMMXT
+	select HAVE_PWM
+	help
+	  Say Y here if you intend to run this kernel on an
+	  ASUS MyPal A639. Currently there is only basic
+	  support for this PDA.
+
 config MACH_H4700
 	bool "HP iPAQ hx4700"
 	select PXA27x
@@ -598,13 +608,6 @@ config MACH_E800
 config MACH_ZIPIT2
 	bool "Zipit Z2 Handheld"
 	select PXA27x
-	select HAVE_PWM
-
-config MACH_A639
-	bool "Asus A639"
-	depends on ARCH_PXA
-	select PXA27x
-	select IWMMXT
 	select HAVE_PWM
 
 endmenu
